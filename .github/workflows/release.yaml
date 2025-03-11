@@ -10,66 +10,8 @@ on:
 
 jobs:
   Release:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        target:
-          # - os: "darwin"
-          #   platform: "amd64"
-          # - os: "darwin"
-          #   platform: "386"
+    runs-on: ubuntu-latest
 
-          - os: "linux"
-            platform: "amd64"
-          - os: "linux"
-            platform: "386"
-          - os: "linux"
-            platform: "arm"
-          - os: "linux"
-            platform: "arm64"
-          - os: "linux"
-            platform: "mips"
-          # - os: "linux"
-          #   platform: "mips64"
-          # - os: "linux"
-          #   platform: "s390x"
-
-          # - os: "windows"
-          #   platform: "amd64"
-          # - os: "windows"
-          #   platform: "386"
-
-          # - os: "dragonfly"
-          #   platform: "amd64"
-
-          # - os: "freebsd"
-          #   platform: "amd64"
-          # - os: "freebsd"
-          #   platform: "386"
-          # - os: "freebsd"
-          #   platform: "arm"
-
-          # - os: "netbsd"
-          #   platform: "amd64"
-          # - os: "netbsd"
-          #   platform: "386"
-
-          # - os: "openbsd"
-          #   platform: "amd64"
-          # - os: "openbsd"
-          #   platform: "386"
-          # - os: "openbsd"
-          #   platform: "arm"
-            
-          # - os: "plan9"
-          #   platform: "amd64"
-          # - os: "plan9"
-          #   platform: "386"
-          # - os: "plan9"
-          #   platform: "arm"
-
-          # - os: "solaris"
-          #   platform: "amd64"
     steps:
       - uses: actions/checkout@v4
 
@@ -89,17 +31,24 @@ jobs:
             echo >> RELEASE.txt
           fi
 
-      - name: Build
+      - name: Install dependencies
         run: |
-          go build -o artifacts/parse-template-${{ matrix.target }} cmd/parse-template.go
+          go get github.com/akavel/rsrc
+          go get -u honnef.co/go/tools/cmd/staticcheck
+          go get -u github.com/kisielk/errcheck
+          curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.21.0
 
       - name: Build
         run: |
-          GOARCH=${GOARCH} GOOS=${GOOS} go build -o artifacts/parse-template-${GOOS}-${GOARCH}${EXT} cmd/parse-template.go
-        env:
-          GOOS: ${{ matrix.target.os }}
-          GOARCH: ${{ matrix.target.platform }}
-          EXT: ${{ matrix.target.os == 'windows' && '.exe' || '' }}
+          bash travis-build.sh
+
+      # - name: Build
+      #   run: |
+      #     GOARCH=${GOARCH} GOOS=${GOOS} go build -o artifacts/parse-template-${GOOS}-${GOARCH}${EXT} cmd/parse-template.go
+      #   env:
+      #     GOOS: ${{ matrix.target.os }}
+      #     GOARCH: ${{ matrix.target.platform }}
+      #     EXT: ${{ matrix.target.os == 'windows' && '.exe' || '' }}
 
       # # TODO: macOS build
 
