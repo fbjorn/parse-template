@@ -1,0 +1,119 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+    branches:
+      - "main"
+      - "fix-cve"
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - os: "darwin"
+            platform: "amd64"
+          - os: "darwin"
+            platform: "386"
+
+          - os: "linux"
+            platform: "amd64"
+          - os: "linux"
+            platform: "386"
+          - os: "linux"
+            platform: "arm"
+          - os: "linux"
+            platform: "arm64"
+          - os: "linux"
+            platform: "mips"
+          - os: "linux"
+            platform: "mips64"
+          - os: "linux"
+            platform: "s390x"
+
+          - os: "windows"
+            platform: "amd64"
+          - os: "windows"
+            platform: "386"
+
+          - os: "dragonfly"
+            platform: "amd64"
+
+          - os: "freebsd"
+            platform: "amd64"
+          - os: "freebsd"
+            platform: "386"
+          - os: "freebsd"
+            platform: "arm"
+
+          - os: "netbsd"
+            platform: "amd64"
+          - os: "netbsd"
+            platform: "386"
+
+          - os: "openbsd"
+            platform: "amd64"
+          - os: "openbsd"
+            platform: "386"
+          - os: "openbsd"
+            platform: "arm"
+            
+          - os: "plan9"
+            platform: "amd64"
+          - os: "plan9"
+            platform: "386"
+          - os: "plan9"
+            platform: "arm"
+
+          - os: "solaris"
+            platform: "amd64"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ">=1.24.1"
+
+      - name: Prepare things
+        id: prepare
+        run: |
+          mkdir artifacts
+
+          # Extract version from tag
+          VERSION=$(git tag --points-at HEAD | head -n1)
+          if [[ "$VERSION" != "" ]]; then
+            echo "Release $VERSION of ${{ github.sha }}" > RELEASE.txt
+            echo >> RELEASE.txt
+          fi
+
+      - name: Build
+        run: |
+          go build -o artifacts/parse-template-${{ matrix.target }} cmd/parse-template.go
+
+      - name: Build
+        run: |
+          GOARCH=${GOARCH} GOOS=${GOOS} go build -o artifacts/parse-template-${GOOS}-${GOARCH}${EXT} cmd/parse-template.go
+        env:
+          GOOS: ${{ matrix.target.os }}
+          GOARCH: ${{ matrix.target.platform }}
+          EXT: ${{ matrix.target.os == 'windows' && '.exe' || '' }}
+
+      # # TODO: macOS build
+
+      # - name: Archive build artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: artifacts
+      #     path: |
+      #       artifacts
+
+      # # Release tagged pushes
+      # - name: Release
+      #   uses: softprops/action-gh-release@v2
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   with:
+      #     body_path: RELEASE.txt
+      #     files: artifacts/*
