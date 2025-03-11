@@ -75,7 +75,7 @@ GOFLAGS=-mod=vendor
 ARTIFACTS="$PWD/artifacts"
 mkdir -p "$ARTIFACTS"
 
-cmd go vet . ./cmd
+cmd go vet -mod=mod . ./cmd
 cmd staticcheck . ./cmd
 cmd errcheck . ./cmd
 cmd golangci-lint run . ./cmd
