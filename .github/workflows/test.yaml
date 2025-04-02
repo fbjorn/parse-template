@@ -1,0 +1,65 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - "fix-cve"
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ">=1.24.1"
+
+      - name: Run tests
+        run: |
+          go test
+
+      - name: Run go vet
+        run: |
+          go vet -mod=readonly  . ./cmd
+
+      - uses: dominikh/staticcheck-action@v1.2.0
+        with:
+          version: "2022.1.1" 
+          install-go: false
+      # - name: Install dependencies
+      #   run: |
+      #     go get github.com/akavel/rsrc
+      #     go get -u honnef.co/go/tools/cmd/staticcheck
+      #     # go get -u github.com/kisielk/errcheck
+      #     # curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.0.2
+
+      # - name: Build
+      #   run: |
+      #     bash travis-build.sh
+
+      # - name: Build
+      #   run: |
+      #     GOARCH=${GOARCH} GOOS=${GOOS} go build -o artifacts/parse-template-${GOOS}-${GOARCH}${EXT} cmd/parse-template.go
+      #   env:
+      #     GOOS: ${{ matrix.target.os }}
+      #     GOARCH: ${{ matrix.target.platform }}
+      #     EXT: ${{ matrix.target.os == 'windows' && '.exe' || '' }}
+
+      # # TODO: macOS build
+
+      # - name: Archive build artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: artifacts
+      #     path: |
+      #       artifacts
+
+      # # Release tagged pushes
+      # - name: Release
+      #   uses: softprops/action-gh-release@v2
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   with:
+      #     body_path: RELEASE.txt
+      #     files: artifacts/*
