@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/lieturd/parse-template"
-	"io/ioutil"
 	"os"
+
+	parse_template "github.com/lieturd/parse-template"
 )
 
 func usage() {
@@ -21,7 +21,7 @@ func main() {
 	}
 
 	source, td := parse_template.GetTemplateData(os.Args, os.Environ())
-	contents, err := ioutil.ReadFile(source)
+	contents, err := os.ReadFile(source)
 	if err != nil {
 		panic(err)
 	}
