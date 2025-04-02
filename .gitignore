@@ -7,3 +7,4 @@ artifacts/
 *.syso
 # Added by goreleaser init:
 dist/
+RELEASE.txt
