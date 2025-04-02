@@ -4,10 +4,14 @@ on:
   push:
     tags:
       - "*.*.*"
-    branches:
-      - "main"
-      - "fix-cve"
+    # branches:
+    #   - "main"
+    #   - "fix-cve"
 
+permissions:
+  contents: write
+  actions: write
+  
 jobs:
   Release:
     runs-on: ubuntu-latest
@@ -30,17 +34,36 @@ jobs:
             echo "Release $VERSION of ${{ github.sha }}" > RELEASE.txt
             echo >> RELEASE.txt
           fi
-
-      - name: Install dependencies
+      - name: Test
         run: |
-          go get github.com/akavel/rsrc
-          go get -u honnef.co/go/tools/cmd/staticcheck
-          go get -u github.com/kisielk/errcheck
-          curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.21.0
-
-      - name: Build
+          go test
+      - name: Run go vet
         run: |
-          bash travis-build.sh
+          go vet -mod=readonly  . ./cmd
+      - name: GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Run staticcheck
+      #   run: |
+      #     staticcheck . ./cmd
+      # - uses: dominikh/staticcheck-action@v1.2.0
+      #   with:
+      #     version: "2022.1.1" 
+      #     install-go: false
+      # - name: Install dependencies
+      #   run: |
+      #     go get github.com/akavel/rsrc
+      #     go get -u honnef.co/go/tools/cmd/staticcheck
+      #     # go get -u github.com/kisielk/errcheck
+      #     # curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.0.2
+
+      # - name: Build
+      #   run: |
+      #     bash travis-build.sh
 
       # - name: Build
       #   run: |

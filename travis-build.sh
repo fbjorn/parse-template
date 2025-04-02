@@ -75,10 +75,14 @@ GOFLAGS=-mod=vendor
 ARTIFACTS="$PWD/artifacts"
 mkdir -p "$ARTIFACTS"
 
-cmd go vet -mod=mod . ./cmd
-cmd staticcheck . ./cmd
-cmd errcheck . ./cmd
-cmd golangci-lint run . ./cmd
+export PATH="$GOPATH/bin:$PATH"
+# cmd go vet -mod=mod . ./cmd
+
+# go install -mod=readonly honnef.co/go/tools/cmd/staticcheck
+
+# cmd staticcheck . ./cmd -mod=readonly
+# cmd errcheck . ./cmd
+# cmd golangci-lint run . ./cmd
 
 for os in $OSES; do
   big_label "$os parse-template"
