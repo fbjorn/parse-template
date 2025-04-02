@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"os"
 
-	parse_template "github.com/lieturd/parse-template"
+	parse_template "github.com/cocreators-ee/parse-template"
 )
 
 func usage() {
 	fmt.Println("Usage:")
 	fmt.Printf("  %s <source file> [--name=value]\n", os.Args[0])
 	fmt.Println("")
-	fmt.Printf("More information at https://github.com/Lieturd/parse-template\n")
+	fmt.Printf("More information at github.com/cocreators-ee/parse-template\n")
 }
 
 func main() {

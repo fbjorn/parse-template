@@ -1,4 +1,4 @@
-module github.com/lieturd/parse-template
+module github.com/cocreators-ee/parse-template
 
 go 1.24.1
 
