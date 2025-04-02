@@ -24,8 +24,11 @@ jobs:
       #   run: |
       #     go vet -mod=readonly  . ./cmd
 
-      - uses: dominikh/staticcheck-action@v1
-        with:
-          version: "2022.1.1" 
-          install-go: false
-          cache-key: 1.24.1
+      - name: Run staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck . ./cmd
+      # - uses: dominikh/staticcheck-action@v1
+      #   with:
+      #     version: "2022.1.1" 
+      #     install-go: false
